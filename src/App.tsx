@@ -1,18 +1,33 @@
 import React from "react";
 import { SignIn } from "components/signIn";
-import {
-	BrowserRouter as Router,
-	Switch,
-	Route,
-	Link,
-	Redirect,
-	useHistory,
-	useLocation
-} from "react-router-dom";
+import { BrowserRouter as Router, Route, Redirect } from "react-router-dom";
 import AuthService from "./services/auth.service";
-import { AirportsAdministrators } from "components/airportsAdministrators";
+import { Main } from "components/main";
+import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
+import AppBar from "@material-ui/core/AppBar";
+import Toolbar from "@material-ui/core/Toolbar";
+import Button from "@material-ui/core/Button";
+import { IconButton, Typography } from "@material-ui/core";
+import { SnackbarProvider } from "notistack";
+import jwt_decode from "jwt-decode";
+import AccountCircle from "@material-ui/icons/AccountCircle";
+import { AuthenticationToken } from "./types/Auth";
+import PowerSettingsNewIcon from "@material-ui/icons/PowerSettingsNew";
+
+const useStyles = makeStyles((theme: Theme) =>
+	createStyles({
+		root: {
+			flexGrow: 1,
+		},
+		title: {
+			flexGrow: 1,
+		},
+	}),
+);
 
 const App: React.FC = () => {
+	const classes = useStyles();
+
 	function PrivateRoute({ children, ...rest }) {
 		return (
 			<Route
@@ -24,7 +39,7 @@ const App: React.FC = () => {
 						<Redirect
 							to={{
 								pathname: "/signIn",
-								state: { from: location }
+								state: { from: location },
 							}}
 						/>
 					)
@@ -44,7 +59,7 @@ const App: React.FC = () => {
 						<Redirect
 							to={{
 								pathname: "/",
-								state: { from: location }
+								state: { from: location },
 							}}
 						/>
 					)
@@ -54,14 +69,36 @@ const App: React.FC = () => {
 	}
 
 	return (
-		<Router history={history}>
-			<PublicRoute exact path="/signIn">
-				<SignIn />
-			</PublicRoute>
-			<PrivateRoute exact path="/">
-				<AirportsAdministrators />
-			</PrivateRoute>
-		</Router>
+		<SnackbarProvider maxSnack={3}>
+			<Router history={history}>
+				<PublicRoute exact path="/signIn">
+					<SignIn />
+				</PublicRoute>
+				<PrivateRoute exact path="/">
+					<div className={classes.root}>
+						<AppBar position="static">
+							<Toolbar>
+								<Typography variant="h6" className={classes.title}>
+									FlyIt-SystemAdministrator
+								</Typography>
+								<IconButton
+									aria-label="account of current user"
+									aria-controls="menu-appbar"
+									aria-haspopup="true"
+									onClick={() => {
+										AuthService.logout();
+										window.location.reload();
+									}}
+									color="inherit">
+									<PowerSettingsNewIcon />
+								</IconButton>
+							</Toolbar>
+						</AppBar>
+					</div>
+					<Main />
+				</PrivateRoute>
+			</Router>
+		</SnackbarProvider>
 	);
 };
 

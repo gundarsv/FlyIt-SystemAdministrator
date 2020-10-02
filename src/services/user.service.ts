@@ -1,28 +1,35 @@
 import axios from "axios";
+import { User } from "src/types/User";
 import authHeader from "./auth-header";
 
-const API_URL = "https://localhost:44305/api/User/";
+const API_URL = "https://flyit.azurewebsites.net/api/User/";
 
 class UserService {
 	private axiosInstance = axios.create();
 
 	constructor() {
 		this.axiosInstance.interceptors.response.use(
-			(response) => {
+			response => {
 				return response;
 			},
-			(error) => {
+			error => {
 				if (error.response.status === 401) {
 					localStorage.removeItem("token");
 				}
 
 				return Promise.reject(error);
-			}
+			},
 		);
 	}
 
 	getUsers() {
-		return axios.get(API_URL + "Users", { headers: authHeader() });
+		return axios.get<Array<User>>(API_URL + "Users", { headers: authHeader() });
+	}
+
+	getAirportsAdministrators() {
+		return axios.get<Array<User>>(API_URL + "AirportsAdministrators", {
+			headers: authHeader(),
+		});
 	}
 }
 

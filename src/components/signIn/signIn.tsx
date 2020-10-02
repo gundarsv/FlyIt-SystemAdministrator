@@ -3,34 +3,43 @@ import Avatar from "@material-ui/core/Avatar";
 import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import TextField from "@material-ui/core/TextField";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import Checkbox from "@material-ui/core/Checkbox";
-import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
+import SupervisorAccountRoundedIcon from "@material-ui/icons/SupervisorAccountRounded";
 import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
 import AuthService from "../../services/auth.service";
 import { useHistory } from "react-router";
 import { withRouter } from "react-router-dom";
+import { CircularProgress } from "@material-ui/core";
+import { green } from "@material-ui/core/colors";
+import { useSnackbar } from "notistack";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(theme => ({
 	paper: {
 		marginTop: theme.spacing(8),
 		display: "flex",
 		flexDirection: "column",
-		alignItems: "center"
+		alignItems: "center",
 	},
 	avatar: {
 		margin: theme.spacing(1),
-		backgroundColor: theme.palette.secondary.main
-	},
-	form: {
-		width: "100%", // Fix IE 11 issue.
-		marginTop: theme.spacing(1)
+		backgroundColor: theme.palette.secondary.main,
 	},
 	submit: {
-		margin: theme.spacing(3, 0, 2)
-	}
+		margin: theme.spacing(3, 0, 2),
+	},
+	wrapper: {
+		margin: theme.spacing(1),
+		position: "relative",
+	},
+	buttonProgress: {
+		color: green[500],
+		position: "absolute",
+		top: "50%",
+		left: "50%",
+		marginTop: -8,
+		marginLeft: -12,
+	},
 }));
 
 const SignIn: React.FC = () => {
@@ -39,6 +48,7 @@ const SignIn: React.FC = () => {
 	const [isLoading, setIsLoading] = React.useState(false);
 	const classes = useStyles();
 	const history = useHistory();
+	const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
 	const onLogin = () => {
 		if (!email || !password) {
@@ -48,13 +58,14 @@ const SignIn: React.FC = () => {
 		setIsLoading(true);
 
 		AuthService.singIn(email, password).then(
-			(response) => {
+			response => {
 				setIsLoading(false);
 				history.push("/");
 			},
-			(error) => {
+			error => {
+				enqueueSnackbar(error.response.data[0], { variant: "error", autoHideDuration: 2000 });
 				setIsLoading(false);
-			}
+			},
 		);
 	};
 
@@ -63,15 +74,15 @@ const SignIn: React.FC = () => {
 			<CssBaseline />
 			<div className={classes.paper}>
 				<Avatar className={classes.avatar}>
-					<LockOutlinedIcon />
+					<SupervisorAccountRoundedIcon />
 				</Avatar>
 				<Typography component="h1" variant="h5">
-					Sign in
+					FlyIt-SystemAdministrator
 				</Typography>
 				<TextField
 					disabled={isLoading}
 					value={email}
-					onChange={(e) => setEmail(e.target.value)}
+					onChange={e => setEmail(e.target.value)}
 					variant="outlined"
 					margin="normal"
 					required
@@ -85,7 +96,7 @@ const SignIn: React.FC = () => {
 				<TextField
 					disabled={isLoading}
 					value={password}
-					onChange={(e) => setPassword(e.target.value)}
+					onChange={e => setPassword(e.target.value)}
 					variant="outlined"
 					margin="normal"
 					required
@@ -96,19 +107,12 @@ const SignIn: React.FC = () => {
 					id="password"
 					autoComplete="current-password"
 				/>
-				<FormControlLabel
-					control={<Checkbox value="remember" color="primary" />}
-					label="Remember me"
-				/>
-				<Button
-					onClick={() => onLogin()}
-					type="submit"
-					fullWidth
-					variant="contained"
-					color="primary"
-					className={classes.submit}>
-					Sign In
-				</Button>
+				<div className={classes.wrapper}>
+					<Button disabled={isLoading} onClick={() => onLogin()} type="submit" fullWidth variant="contained" color="primary" className={classes.submit}>
+						Sign In
+					</Button>
+					{isLoading && <CircularProgress size={24} className={classes.buttonProgress} />}
+				</div>
 			</div>
 		</Container>
 	);
