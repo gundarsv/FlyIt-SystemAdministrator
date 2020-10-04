@@ -1,6 +1,5 @@
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import Button from "@material-ui/core/Button";
 import Avatar from "@material-ui/core/Avatar";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
@@ -14,8 +13,7 @@ import { blue } from "@material-ui/core/colors";
 import UserService from "src/services/user.service";
 import { User } from "src/types/User";
 import { useSnackbar } from "notistack";
-import { If, Otherwise, When } from "tsx-control-statements/components";
-import { CircularProgress, DialogContent, DialogContentText, Input, InputAdornment, InputLabel, Paper, TextField } from "@material-ui/core";
+import { CircularProgress, DialogContent, Paper, TextField } from "@material-ui/core";
 
 const useStyles = makeStyles({
 	avatar: {
