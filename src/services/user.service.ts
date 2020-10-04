@@ -2,7 +2,20 @@ import axios from "axios";
 import { User } from "src/types/User";
 import authHeader from "./auth-header";
 
-const API_URL = "https://flyit.azurewebsites.net/api/User/";
+const API_URL = "https://flyit.azurewebsites.net/";
+
+enum Roles {
+	AirportsAdministrators = 1,
+	SystemAdministrator = 2,
+}
+
+const config = {
+	headers: {
+		"Content-Type": "application/json",
+		Authorization: "Bearer perm:<my token>",
+	},
+	responseType: "json",
+};
 
 class UserService {
 	private axiosInstance = axios.create();
@@ -23,11 +36,27 @@ class UserService {
 	}
 
 	getUsers() {
-		return axios.get<Array<User>>(API_URL + "Users", { headers: authHeader() });
+		return axios.get<Array<User>>(API_URL + "api/User/Users", { headers: authHeader() });
 	}
 
 	getAirportsAdministrators() {
-		return axios.get<Array<User>>(API_URL + "AirportsAdministrators", {
+		return axios.get<Array<User>>(API_URL + "api/User/AirportsAdministrators", {
+			headers: authHeader(),
+		});
+	}
+
+	addAirportsAdministrator(id: number) {
+		return axios.post(
+			API_URL + "api/Role/User/" + id + "/Role/1",
+			{},
+			{
+				headers: authHeader(),
+			},
+		);
+	}
+
+	removeAirportsAdministrator(id: number) {
+		return axios.delete(API_URL + "api/Role/User/" + id + "/Role/1", {
 			headers: authHeader(),
 		});
 	}
