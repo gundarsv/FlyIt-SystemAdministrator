@@ -8,6 +8,8 @@ import MaterialTable from "material-table";
 import DeleteIcon from "@material-ui/icons/Delete";
 import AddIcon from "@material-ui/icons/Add";
 import { LinearProgress } from "@material-ui/core";
+import { UsersDialog } from "components/usersDialog";
+import { useSnackbar } from "notistack";
 
 const useStyles = makeStyles({
 	container: {
@@ -15,23 +17,46 @@ const useStyles = makeStyles({
 	},
 });
 
-function createData(name: string, calories: number, fat: number, carbs: number, protein: number) {
-	return { name, calories, fat, carbs, protein };
-}
-
-const rows = [
-	createData("Frozen yoghurt", 159, 6.0, 24, 4.0),
-	createData("Ice cream sandwich", 237, 9.0, 37, 4.3),
-	createData("Eclair", 262, 16.0, 24, 6.0),
-	createData("Cupcake", 305, 3.7, 67, 4.3),
-	createData("Gingerbread", 356, 16.0, 49, 3.9),
-];
-
 const Main: React.FC = () => {
 	const classes = useStyles();
+	const snackbar = useSnackbar();
 
+	const [open, setOpen] = React.useState(false);
 	const [isLoading, setIsLoading] = React.useState(true);
 	const [airportsAdministrators, setAirportsAdministrators] = React.useState<Array<User>>([]);
+
+	const handleClose = () => {
+		setOpen(false);
+	};
+
+	const handleAddUser = (user: User) => {
+		setOpen(false);
+		UserService.addAirportsAdministrator(user.id).then(
+			response => {
+				if (response.status === 200) {
+					setAirportsAdministrators([...airportsAdministrators, user]);
+					snackbar.enqueueSnackbar("User - " + user.email + " was added", { variant: "success", autoHideDuration: 2000 });
+				}
+			},
+			error => {
+				snackbar.enqueueSnackbar(error.response.data[0], { variant: "error", autoHideDuration: 2000 });
+			},
+		);
+	};
+
+	const handleRemoveUser = (user: User) => {
+		UserService.removeAirportsAdministrator(user.id).then(
+			response => {
+				if (response.status === 200) {
+					setAirportsAdministrators(airportsAdministrators.filter(u => u.id !== user.id));
+					snackbar.enqueueSnackbar("User - " + user.email + " was removed", { variant: "success", autoHideDuration: 2000 });
+				}
+			},
+			error => {
+				snackbar.enqueueSnackbar(error.response.data[0], { variant: "error", autoHideDuration: 2000 });
+			},
+		);
+	};
 
 	React.useEffect(() => {
 		setIsLoading(true);
@@ -41,10 +66,11 @@ const Main: React.FC = () => {
 				setIsLoading(false);
 			},
 			error => {
+				snackbar.enqueueSnackbar(error.response.data[0], { variant: "error", autoHideDuration: 2000 });
 				setIsLoading(false);
 			},
 		);
-	}, []);
+	}, [setAirportsAdministrators, setIsLoading, snackbar]);
 
 	if (isLoading) {
 		return <LinearProgress />;
@@ -67,7 +93,7 @@ const Main: React.FC = () => {
 						icon: () => <DeleteIcon />,
 						tooltip: "Remove",
 						onClick: (event, rowData) => {
-							console.log(rowData);
+							handleRemoveUser(rowData as User);
 						},
 					},
 					{
@@ -75,12 +101,13 @@ const Main: React.FC = () => {
 						icon: () => <AddIcon />,
 						tooltip: "Add System Administrator",
 						isFreeAction: true,
-						onClick: event => {
-							console.log(event);
+						onClick: () => {
+							setOpen(true);
 						},
 					},
 				]}
 			/>
+			<UsersDialog onSelectUser={handleAddUser} open={open} onClose={handleClose} />
 		</Container>
 	);
 };
