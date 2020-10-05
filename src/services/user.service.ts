@@ -1,6 +1,7 @@
 import axios from "axios";
 import { User } from "src/types/User";
 import authHeader from "./auth-header";
+import AuthService from "./auth.service";
 
 const API_URL = "https://flyit.azurewebsites.net/";
 
@@ -8,14 +9,6 @@ enum Roles {
 	AirportsAdministrators = 1,
 	SystemAdministrator = 2,
 }
-
-const config = {
-	headers: {
-		"Content-Type": "application/json",
-		Authorization: "Bearer perm:<my token>",
-	},
-	responseType: "json",
-};
 
 class UserService {
 	private axiosInstance = axios.create();
@@ -27,7 +20,8 @@ class UserService {
 			},
 			error => {
 				if (error.response.status === 401) {
-					localStorage.removeItem("token");
+					AuthService.logout();
+					window.location.reload();
 				}
 
 				return Promise.reject(error);
@@ -36,18 +30,18 @@ class UserService {
 	}
 
 	getUsers() {
-		return axios.get<Array<User>>(API_URL + "api/User/Users", { headers: authHeader() });
+		return this.axiosInstance.get<Array<User>>(API_URL + "api/User/Users", { headers: authHeader() });
 	}
 
 	getAirportsAdministrators() {
-		return axios.get<Array<User>>(API_URL + "api/User/AirportsAdministrators", {
+		return this.axiosInstance.get<Array<User>>(API_URL + "api/User/AirportsAdministrators", {
 			headers: authHeader(),
 		});
 	}
 
 	addAirportsAdministrator(id: number) {
-		return axios.post(
-			API_URL + "api/Role/User/" + id + "/Role/1",
+		return this.axiosInstance.post(
+			API_URL + "api/Role/User/" + id + "/Role/" + Roles.AirportsAdministrators,
 			{},
 			{
 				headers: authHeader(),
@@ -56,7 +50,7 @@ class UserService {
 	}
 
 	removeAirportsAdministrator(id: number) {
-		return axios.delete(API_URL + "api/Role/User/" + id + "/Role/1", {
+		return this.axiosInstance.delete(API_URL + "api/Role/User/" + id + "/Role/" + Roles.AirportsAdministrators, {
 			headers: authHeader(),
 		});
 	}
