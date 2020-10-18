@@ -1,7 +1,8 @@
-import axios from "axios";
+import { Airport } from "src/types/Airport";
+import AuthService from "./auth.service";
 import { User } from "src/types/User";
 import authHeader from "./auth-header";
-import AuthService from "./auth.service";
+import axios from "axios";
 
 const API_URL = "https://flyit.azurewebsites.net/";
 
@@ -40,7 +41,7 @@ class UserService {
 	}
 
 	addAirportsAdministrator(id: number) {
-		return this.axiosInstance.post(
+		return this.axiosInstance.post<Airport>(
 			API_URL + "api/Role/User/" + id + "/Role/" + Roles.AirportsAdministrators,
 			{},
 			{

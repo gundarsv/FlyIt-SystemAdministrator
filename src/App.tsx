@@ -1,20 +1,17 @@
-import React from "react";
-import { SignIn } from "components/signIn";
-import { BrowserRouter as Router, Route, Redirect } from "react-router-dom";
+import { BrowserRouter, Redirect, Route } from "react-router-dom";
+import { IconButton, Typography } from "@material-ui/core";
+import { Theme, createStyles, makeStyles } from "@material-ui/core/styles";
+
+import AppBar from "@material-ui/core/AppBar";
 import AuthService from "./services/auth.service";
 import { Main } from "components/main";
-import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
-import AppBar from "@material-ui/core/AppBar";
-import Toolbar from "@material-ui/core/Toolbar";
-import Button from "@material-ui/core/Button";
-import { IconButton, Typography } from "@material-ui/core";
-import { SnackbarProvider } from "notistack";
-import jwt_decode from "jwt-decode";
-import AccountCircle from "@material-ui/icons/AccountCircle";
-import { AuthenticationToken } from "./types/Auth";
 import PowerSettingsNewIcon from "@material-ui/icons/PowerSettingsNew";
+import React from "react";
+import { SignIn } from "components/signIn";
+import { SnackbarProvider } from "notistack";
+import Toolbar from "@material-ui/core/Toolbar";
 
-const useStyles = makeStyles((theme: Theme) =>
+const useStyles = makeStyles(() =>
 	createStyles({
 		root: {
 			flexGrow: 1,
@@ -70,7 +67,7 @@ const App: React.FC = () => {
 
 	return (
 		<SnackbarProvider maxSnack={3}>
-			<Router history={history}>
+			<BrowserRouter>
 				<PublicRoute exact path="/signIn">
 					<SignIn />
 				</PublicRoute>
@@ -97,7 +94,7 @@ const App: React.FC = () => {
 					</div>
 					<Main />
 				</PrivateRoute>
-			</Router>
+			</BrowserRouter>
 		</SnackbarProvider>
 	);
 };
